@@ -8,10 +8,13 @@ namespace CounterApp
 {
     public class CounterViewController : MonoBehaviour
     {
+        private ICounterModel mCounterModel;
+
         void Start()
         {
+            mCounterModel = CounterApp.Get<ICounterModel>();
             // ×¢²á
-            CounterModel.Instance.Count.OnValueChanged += OnCountChanged;
+            mCounterModel.Count.OnValueChanged += OnCountChanged;
 
             transform.Find("BtnAdd").GetComponent<Button>()
                 .onClick.AddListener(() =>
@@ -25,7 +28,7 @@ namespace CounterApp
                     new SubCountCommand().Execute();
                 });
 
-            OnCountChanged(CounterModel.Instance.Count.Value);
+            OnCountChanged(mCounterModel.Count.Value);
         }
 
         // ±íÏÖÂß¼­
@@ -37,17 +40,31 @@ namespace CounterApp
         private void OnDestroy()
         {
             // ×¢Ïú
-            CounterModel.Instance.Count.OnValueChanged -= OnCountChanged;
+            mCounterModel.Count.OnValueChanged -= OnCountChanged;
+            mCounterModel = null;
         }
     }
 
-    public class CounterModel:Singleton<CounterModel>
+    public interface ICounterModel :IBelongToArchitecture
     {
-        private CounterModel() { }
-        public BindableProperty<int> Count = new BindableProperty<int>()
+        public BindableProperty<int> Count { get; }
+    }
+    public class CounterModel : ICounterModel
+    {
+        public CounterModel()
+        {
+            var storage = Architecture.GetUtility<IStorage>();
+            Count.Value = storage.LoadInt("COUNTER_COUNT", 0);
+            Count.OnValueChanged += count =>
+            {
+                storage.SaveInt("COUNTER_COUNT", count);
+            };
+        }
+        public BindableProperty<int> Count { get; } = new BindableProperty<int>()
         {
             Value = 0
         };
+        public IArchitecture Architecture { get ; set; }
     }
 }
 
