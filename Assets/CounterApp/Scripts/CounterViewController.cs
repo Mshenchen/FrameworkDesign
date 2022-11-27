@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using FrameworkDesign;
 
+
 namespace CounterApp
 {
     public class CounterViewController : MonoBehaviour
@@ -45,13 +46,13 @@ namespace CounterApp
         }
     }
 
-    public interface ICounterModel :IBelongToArchitecture
+    public interface ICounterModel :IModel
     {
         public BindableProperty<int> Count { get; }
     }
     public class CounterModel : ICounterModel
     {
-        public CounterModel()
+        public void Init()
         {
             var storage = Architecture.GetUtility<IStorage>();
             Count.Value = storage.LoadInt("COUNTER_COUNT", 0);
@@ -65,6 +66,7 @@ namespace CounterApp
             Value = 0
         };
         public IArchitecture Architecture { get ; set; }
+
     }
 }
 

@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using FrameworkDesign.Example;
 using UnityEngine;
 using FrameworkDesign;
 
@@ -9,8 +8,9 @@ namespace CounterApp
     {
         protected override void Init()
         {
+            RegisterSystem<IAchievementSystem>(new AchievementSystem());
             RegisterModel<ICounterModel>(new CounterModel());
-            Register<IStorage>(new PlayerPrefsStorage());
+            RegisterUtility<IStorage>(new PlayerPrefsStorage());
         }
     }
 }
