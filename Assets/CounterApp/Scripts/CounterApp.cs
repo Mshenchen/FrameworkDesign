@@ -2,6 +2,8 @@ using FrameworkDesign.Example;
 using UnityEngine;
 using FrameworkDesign;
 
+
+
 namespace CounterApp
 {
     public class CounterApp : Architecture<CounterApp>

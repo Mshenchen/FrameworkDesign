@@ -2,22 +2,32 @@ using UnityEngine;
 
 namespace FrameworkDesign.Example
 {
-    public class UI : MonoBehaviour
+    public class UI : MonoBehaviour,IController
     {
         void Start()
         {
-            GamePassEvent.Register(OnGamePass);
+            this.RegisterEvent<GamePassEvent>(OnGamePass);
+            this.RegisterEvent<OnCountDownEndEvent>(e => 
+            {
+                transform.Find("Canvas/GamePanel").gameObject.SetActive(false);
+                transform.Find("Canvas/GameOverPanel").gameObject.SetActive(true);
+            }).UnRegisterWhenGameObjectDestoryed(gameObject);
         }
 
-        private void OnGamePass()
+        private void OnGamePass(GamePassEvent e)
         {
+            transform.Find("Canvas/GamePanel").gameObject.SetActive(false);
             transform.Find("Canvas/GamePassPanel").gameObject.SetActive(true);
-            Debug.Log(98643);
         }
 
         private void OnDestroy()
         {
-            GamePassEvent.UnRegister(OnGamePass);
+            this.UnRegisterEvent<GamePassEvent>(OnGamePass);
+        }
+
+        public IArchitecture GetArchitecture()
+        {
+            return PointGame.Interface;
         }
     }
 }

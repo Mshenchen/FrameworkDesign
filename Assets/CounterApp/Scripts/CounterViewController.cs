@@ -4,29 +4,29 @@ using UnityEngine;
 using UnityEngine.UI;
 using FrameworkDesign;
 
-
 namespace CounterApp
 {
-    public class CounterViewController : MonoBehaviour
+    public class CounterViewController : MonoBehaviour,IController
     {
         private ICounterModel mCounterModel;
 
+
         void Start()
         {
-            mCounterModel = CounterApp.Get<ICounterModel>();
+            mCounterModel = this.GetModel<ICounterModel>();
             // ×¢²á
-            mCounterModel.Count.OnValueChanged += OnCountChanged;
+            mCounterModel.Count.RegisterOnValueChanged(OnCountChanged);
 
             transform.Find("BtnAdd").GetComponent<Button>()
                 .onClick.AddListener(() =>
                 {
-                    new AddCountCommand().Execute();
+                    this.SendCommand<AddCountCommand>();
                 });
 
             transform.Find("BtnSub").GetComponent<Button>()
                 .onClick.AddListener(() =>
                 {
-                    new SubCountCommand().Execute();
+                    this.SendCommand<SubCountCommand>();
                 });
 
             OnCountChanged(mCounterModel.Count.Value);
@@ -41,8 +41,13 @@ namespace CounterApp
         private void OnDestroy()
         {
             // ×¢Ïú
-            mCounterModel.Count.OnValueChanged -= OnCountChanged;
+            mCounterModel.Count.UnRegisterOnValueChanged(OnCountChanged);
             mCounterModel = null;
+        }
+
+        IArchitecture IBelongToArchitecture.GetArchitecture()
+        {
+            return CounterApp.Interface;
         }
     }
 
@@ -50,22 +55,23 @@ namespace CounterApp
     {
         public BindableProperty<int> Count { get; }
     }
-    public class CounterModel : ICounterModel
+    public class CounterModel : AbstractModel,ICounterModel
     {
-        public void Init()
+
+        protected override void OnInit()
         {
-            var storage = Architecture.GetUtility<IStorage>();
+            var storage = this.GetUtility<IStorage>();
             Count.Value = storage.LoadInt("COUNTER_COUNT", 0);
-            Count.OnValueChanged += count =>
+            Count.RegisterOnValueChanged(count =>
             {
                 storage.SaveInt("COUNTER_COUNT", count);
-            };
+            });
         }
+
         public BindableProperty<int> Count { get; } = new BindableProperty<int>()
         {
             Value = 0
         };
-        public IArchitecture Architecture { get ; set; }
 
     }
 }

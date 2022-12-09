@@ -8,7 +8,11 @@ namespace FrameworkDesign.Example
     {
         protected override void Init()
         {
-            Register<IGameModel>(new GameModel());
+            RegisterSystem<IScoreSystem>(new ScoreSystem());
+            RegisterSystem<ICountDownSystem>(new CountDownSystem());
+            RegisterSystem<IAchievementSystem>(new AchievementSystem());
+            RegisterModel<IGameModel>(new GameModel());
+            RegisterUtility<IStorage>(new PlayerPrefsStorage());
         }
     }
 }

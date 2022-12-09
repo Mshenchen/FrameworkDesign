@@ -2,12 +2,17 @@
 
 namespace FrameworkDesign.Example
 {
-    public struct StartGameCommand : ICommand
+    public class StartGameCommand : AbstractCommand
     {
-        public void Execute()
+
+        protected override void OnExecute()
         {
-            GameStartEvent.Trigger();
+            var gameModel = this.GetModel<IGameModel>();
+            gameModel.KillCount.Value = 0;
+            gameModel.Score.Value = 0;
+            this.SendEvent<GameStartEvent>();
         }
+
     }
 }
 

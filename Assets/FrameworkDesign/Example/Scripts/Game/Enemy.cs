@@ -1,18 +1,32 @@
+using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 
-// Ð´ÃüÃû¿Õ¼äÊÇ¸öºÃÏ°¹ß
+// æµ‹è¯•ä¸‹
 namespace FrameworkDesign.Example
 {
-    public class Enemy : MonoBehaviour
+    public class Enemy : MonoBehaviour, IController
     {
+
+        IArchitecture IBelongToArchitecture.GetArchitecture()
+        {
+            return PointGame.Interface;
+        }
+        private void Update()
+        {
+
+        }
+        private void Awake()
+        {
+
+        }
+
         /// <summary>
-        /// µã»÷×Ô¼ºÔòÏú»Ù
+        /// ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private void OnMouseDown()
         {
-            Destroy(gameObject);
-
-            new KillEnemyCommand().Execute();
+            gameObject.SetActive(false);
+            this.SendCommand<KillEnemyCommand>();
         }
     }
 }

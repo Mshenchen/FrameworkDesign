@@ -9,9 +9,17 @@ namespace FrameworkDesign
     {
         void RegisterSystem<T>(T system) where T : ISystem;
         void RegisterModel<T>(T model) where T : IModel;
-        void RegisterUtility<T>(T utility);
+        void RegisterUtility<T>(T utility) where T : IUtility;
+        T GetSystem<T>() where T : class, ISystem;
         T GetModel<T>() where T : class, IModel;
-        T GetUtility<T>() where T : class;
+        T GetUtility<T>() where T : class,IUtility;
+        void SendCommand<T>() where T : ICommand, new();
+        void SendCommand<T>(T command) where T : ICommand;
+
+        void SendEvent<T>() where T : new();
+        void SendEvent<T>(T e);
+        IUnRegister RegisterEvent<T>(Action<T> onEvent);
+        void UnRegisterEvent<T>(Action<T> onEvent);
     }
     public abstract class Architecture<T> : IArchitecture where T : Architecture<T>, new()
     {
@@ -23,6 +31,17 @@ namespace FrameworkDesign
         private List<IModel> mModels = new List<IModel>();
         public static Action<T> OnRegisterPatch = architecture => { };
         private static T mArchitecture = null;
+        public static IArchitecture Interface 
+        {
+            get
+            {
+                if (mArchitecture == null)
+                {
+                    MakeSureArchitecture();
+                }
+                return mArchitecture;
+            }
+        }
         static void MakeSureArchitecture()
         {
             if(mArchitecture == null)
@@ -45,19 +64,19 @@ namespace FrameworkDesign
         }
         protected abstract void Init();
         protected IOCContainer mContainer = new IOCContainer();
-        public static T Get<T>() where T: class
-        {
-            MakeSureArchitecture();
-            return mArchitecture.mContainer.Get<T>();
-        }
-        public static void Register<T>(T instance)
-        {
-            MakeSureArchitecture();
-            mArchitecture.mContainer.Register<T>(instance);
-        }
+        //public static T Get<T>() where T: class
+        //{
+        //    MakeSureArchitecture();
+        //    return mArchitecture.mContainer.Get<T>();
+        //}
+        //public static void Register<T>(T instance)
+        //{
+        //    MakeSureArchitecture();
+        //    mArchitecture.mContainer.Register<T>(instance);
+        //}
         public void RegisterModel<T>(T model) where T : IModel
         {
-            model.Architecture = this;
+            model.SetArchitecture(this);
             mContainer.Register<T>(model);
             if (!mInited)
             {
@@ -69,19 +88,19 @@ namespace FrameworkDesign
             }
             
         } 
-        public T GetUtility<T>() where T : class
+        public T GetUtility<T>() where T : class,IUtility
         {
             return mContainer.Get<T>();
         }
 
-        public void RegisterUtility<T>(T utility)
+        public void RegisterUtility<T>(T utility) where T : IUtility
         {
             mContainer.Register<T>(utility);
         }
 
         public void RegisterSystem<T>(T system) where T : ISystem
         {
-            system.Architecture = this;
+            system.SetArchitecture(this);
             mContainer.Register<T>(system);
             if (!mInited)
             {
@@ -96,6 +115,46 @@ namespace FrameworkDesign
         T IArchitecture.GetModel<T>()
         {
             return mContainer.Get<T>();
+        }
+
+        public void SendCommand<T>() where T : ICommand, new()
+        {
+            var command = new T();
+            command.SetArchitecture(this);
+            command.Execute();
+
+        }
+
+        public void SendCommand<T>(T command) where T : ICommand
+        {
+            command.SetArchitecture(this);
+            command.Execute();
+        }
+
+        T IArchitecture.GetSystem<T>()
+        {
+            return mContainer.Get<T>();
+        }
+        private ITypeEventSystem mTypeEventSystem = new TypeEventSystem();
+
+        public void SendEvent<T>() where T : new()
+        {
+            mTypeEventSystem.Send<T>();
+        }
+
+        public void SendEvent<T>(T e)
+        {
+            mTypeEventSystem.Send<T>(e);
+        }
+
+        public IUnRegister RegisterEvent<T>(Action<T> onEvent)
+        {
+            return mTypeEventSystem.Register<T>(onEvent);
+        }
+
+        public void UnRegisterEvent<T>(Action<T> onEvent)
+        {
+            mTypeEventSystem.UnRegister<T>(onEvent);
         }
     }
 }
