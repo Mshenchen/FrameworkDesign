@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
+using QFramework;
 using UnityEngine;
 using UnityEngine.UI;
-using FrameworkDesign;
-
 namespace CounterApp
 {
     public class CounterViewController : MonoBehaviour,IController
@@ -15,7 +12,7 @@ namespace CounterApp
         {
             mCounterModel = this.GetModel<ICounterModel>();
             // ×¢²á
-            mCounterModel.Count.RegisterOnValueChanged(OnCountChanged);
+            mCounterModel.Count.Register(OnCountChanged);
 
             transform.Find("BtnAdd").GetComponent<Button>()
                 .onClick.AddListener(() =>
@@ -41,7 +38,7 @@ namespace CounterApp
         private void OnDestroy()
         {
             // ×¢Ïú
-            mCounterModel.Count.UnRegisterOnValueChanged(OnCountChanged);
+            mCounterModel.Count.UnRegister(OnCountChanged);
             mCounterModel = null;
         }
 
@@ -62,7 +59,7 @@ namespace CounterApp
         {
             var storage = this.GetUtility<IStorage>();
             Count.Value = storage.LoadInt("COUNTER_COUNT", 0);
-            Count.RegisterOnValueChanged(count =>
+            Count.Register(count =>
             {
                 storage.SaveInt("COUNTER_COUNT", count);
             });

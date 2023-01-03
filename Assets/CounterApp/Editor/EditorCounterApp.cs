@@ -1,6 +1,6 @@
 using UnityEditor;
 using UnityEngine;
-using FrameworkDesign;
+using QFramework;
 namespace CounterApp.Editor 
 {
     public class EditorCounterApp : EditorWindow,IController

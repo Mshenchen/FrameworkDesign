@@ -2,7 +2,7 @@
 using UnityEditor;
 #endif
 using UnityEngine;
-namespace FrameworkDesign.Example
+namespace QFramework.Example
 {
     public class DIPExample : MonoBehaviour
     {

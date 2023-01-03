@@ -1,7 +1,5 @@
-using System.Collections;
-using FrameworkDesign;
+using QFramework;
 using UnityEngine;
-using CounterApp;
 namespace CounterApp
 {
     public interface IAchievementSystem : ISystem
@@ -15,7 +13,7 @@ namespace CounterApp
         {
             var counterModel = this.GetModel<ICounterModel>();
             var previousCount = counterModel.Count.Value;
-            counterModel.Count.RegisterOnValueChanged(newCount =>
+            counterModel.Count.Register(newCount =>
             {
                 if (previousCount < 10 && newCount >= 10)
                 {
